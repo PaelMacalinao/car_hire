@@ -370,6 +370,126 @@ def delete_booking(booking_id):
             cursor.close()
         if conn:
             conn.close()
+            
+# Booking Status CRUD
+@app.route("/api/booking_status", methods=["GET"])
+def get_booking_statuses():
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM booking_status")
+        booking_statuses = cursor.fetchall()
+        return jsonify({"success": True, "data": booking_statuses, "total": len(booking_statuses)}), HTTPStatus.OK
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route("/api/booking_status/<string:booking_status_code>", methods=["GET"])
+def get_booking_status(booking_status_code):
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM booking_status WHERE booking_status_code = %s", (booking_status_code,))
+        booking_status = cursor.fetchone()
+        if not booking_status:
+            return jsonify({"success": False, "error": "Booking status not found"}), HTTPStatus.NOT_FOUND
+        return jsonify({"success": True, "data": booking_status}), HTTPStatus.OK
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route("/api/booking_status", methods=["POST"])
+def create_booking_status():
+    data = request.get_json()
+
+    if not data or not data.get("booking_status_code") or not data.get("booking_status_description"):
+        return jsonify({"success": False, "error": "booking_status_code and booking_status_description are required"}), HTTPStatus.BAD_REQUEST
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO booking_status (booking_status_code, booking_status_description) VALUES (%s, %s)",
+            (data["booking_status_code"], data["booking_status_description"])
+        )
+        conn.commit()
+        return jsonify({"success": True, "data": data}), HTTPStatus.CREATED
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route("/api/booking_status/<string:booking_status_code>", methods=["PUT"])
+def update_booking_status(booking_status_code):
+    data = request.get_json()
+
+    if not data or not data.get("booking_status_description"):
+        return jsonify({"success": False, "error": "booking_status_description is required"}), HTTPStatus.BAD_REQUEST
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE booking_status SET booking_status_description = %s WHERE booking_status_code = %s",
+            (data["booking_status_description"], booking_status_code)
+        )
+        conn.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"success": False, "error": "Booking status not found"}), HTTPStatus.NOT_FOUND
+        return jsonify({"success": True, "message": "Booking status updated successfully"}), HTTPStatus.OK
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@app.route("/api/booking_status/<string:booking_status_code>", methods=["DELETE"])
+def delete_booking_status(booking_status_code):
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM booking_status WHERE booking_status_code = %s", (booking_status_code,))
+        conn.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"success": False, "error": "Booking status not found"}), HTTPStatus.NOT_FOUND
+        return jsonify({"success": True, "message": f"Booking status with code {booking_status_code} has been deleted"}), HTTPStatus.OK
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
