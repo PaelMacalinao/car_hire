@@ -294,8 +294,8 @@ def get_booking(booking_id):
 @app.route("/api/booking", methods=["POST"])
 def create_booking():
     data = request.get_json()
-    if not data or not data.get("Customer_customer_id") or not data.get("Vehicle_reg_number") or not data.get("date_from") or not data.get("date_to") or not data.get("booking_status_status_code"):
-        return jsonify({"success": False, "error": "Customer_customer_id, Vehicle_reg_number, date_from, date_to, and booking_status_status_code are required"}), HTTPStatus.BAD_REQUEST
+    if not data or not data.get("Customer_customer_id") or not data.get("Vehicle_reg_number") or not data.get("date_from") or not data.get("date_to") or not data.get("booking_status_booking_status_code"):
+        return jsonify({"success": False, "error": "Customer_customer_id, Vehicle_reg_number, date_from, date_to, and booking_status_booking_status_code are required"}), HTTPStatus.BAD_REQUEST
 
     if not is_valid_date(data["date_from"]) or not is_valid_date(data["date_to"]):
         return jsonify({"success": False, "error": "Invalid date format. Expected YYYY-MM-DD"}), HTTPStatus.BAD_REQUEST
@@ -306,8 +306,8 @@ def create_booking():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO booking (date_from, date_to, Customer_customer_id, booking_status_status_code, Vehicle_reg_number) VALUES (%s, %s, %s, %s, %s)",
-            (data["date_from"], data["date_to"], data["Customer_customer_id"], data["booking_status_status_code"], data["Vehicle_reg_number"])
+            "INSERT INTO booking (date_from, date_to, Customer_customer_id, booking_status_booking_status_code, Vehicle_reg_number) VALUES (%s, %s, %s, %s, %s)",
+            (data["date_from"], data["date_to"], data["Customer_customer_id"], data["booking_status_booking_status_code"], data["Vehicle_reg_number"])
         )
         conn.commit()
         new_booking_id = cursor.lastrowid
@@ -334,8 +334,8 @@ def update_booking(booking_id):
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE booking SET date_from = %s, date_to = %s, Customer_customer_id = %s, booking_status_status_code = %s, Vehicle_reg_number = %s WHERE booking_id = %s",
-            (data["date_from"], data["date_to"], data["Customer_customer_id"], data["booking_status_status_code"], data["Vehicle_reg_number"], booking_id)
+            "UPDATE booking SET date_from = %s, date_to = %s, Customer_customer_id = %s, booking_status_booking_status_code = %s, Vehicle_reg_number = %s WHERE booking_id = %s",
+            (data["date_from"], data["date_to"], data["Customer_customer_id"], data["booking_status_booking_status_code"], data["Vehicle_reg_number"], booking_id)
         )
         conn.commit()
         if cursor.rowcount == 0:
