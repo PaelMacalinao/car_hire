@@ -13,6 +13,9 @@ JWT_SECRET = "your_jwt_secret_key"
 app = Flask(__name__)
 
 # Function to establish the database connection
+# use this if can't connect in database 
+# ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'your_password'; FLUSH PRIVILEGES;
+
 def get_db_connection():
     try:
         return mysql.connector.connect(
