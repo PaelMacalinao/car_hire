@@ -1,4 +1,4 @@
-Installation
+## Installation
 Add the following dependencies to your requirements.txt file:
 
 plaintext
@@ -14,7 +14,7 @@ Install them using:
 bash
 Copy code
 pip install -r requirements.txt
-Configuration
+## Configuration
 Set the following environment variable:
 
 carhire.db: The URL for the database connection.
@@ -48,7 +48,7 @@ Endpoint	Method	Descriptio
 | `/api/booking_status/{code}`     | DELETE     | Delete a booking status                          |
 | `/api/login`                     | POST       | Login to generate a JWT token                    |
 
-Testing
+## Testing
 Prerequisites:
 Install all dependencies using pip install -r requirements.txt.
 Ensure that the database is running and the required tables are created.
@@ -63,7 +63,7 @@ Verify the output for successful test execution and check code coverage.
 Git Commit Guidelines
 Follow these standardized commit message formats for clarity and consistency:
 
-Type	Description	Example
+## Type	Description	Example
 feat	Introduce a new feature	feat: add JWT authentication
 fix	Fix a bug or issue	fix: resolve database error
 docs	Update documentation	docs: update API endpoints
