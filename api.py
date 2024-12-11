@@ -83,7 +83,7 @@ def hello_world():
     <h1>WELCOME TO MY CAR HIRE SITE!</h1>
     <p>You are currently on the main page of the CARHIRE Database API.</p>
     <ul>
-        <li><a href="/authors">Vehicle</a></li>
+        <li><a href="/api/vehicle">Vehicle</a></li>
     </ul>
     <p>Use the provided routes to interact with the API. Ensure to use valid authentication tokens when necessary.</p>
     """
