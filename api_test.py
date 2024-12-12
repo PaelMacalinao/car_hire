@@ -355,3 +355,87 @@ def test_create_booking_status_success(mock_db, client):
     })
     assert response.status_code == 201
     assert response.json["success"]
+
+
+@patch("api.get_db_connection")
+def test_create_booking_status_success(mock_db, client):
+    """Test creating a new booking status."""
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_conn.cursor.return_value = mock_cursor
+    mock_db.return_value = mock_conn
+
+    response = client.post("/api/booking_status", json={
+        "booking_status_code": "PENDING",
+        "booking_status_description": "Pending Approval"
+    })
+    assert response.status_code == 201
+    assert response.json["success"]
+    assert response.json["data"]["booking_status_code"] == "PENDING"
+    assert response.json["data"]["booking_status_description"] == "Pending Approval"
+
+#add update
+@patch("api.get_db_connection")
+def test_update_booking_status_success(mock_db, client):
+    """Test successful update of a booking status."""
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_cursor.rowcount = 1  
+    mock_conn.cursor.return_value = mock_cursor
+    mock_db.return_value = mock_conn
+
+    response = client.put("/api/booking_status/CONFIRMED", json={
+        "booking_status_description": "Booking Completed"
+    })
+    assert response.status_code == 200
+    assert response.json["success"]
+    assert "Booking status updated successfully" in response.json["message"]
+    
+@patch("api.get_db_connection")
+def test_update_booking_status_not_found(mock_db, client):
+    """Test updating a non-existent booking status."""
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_cursor.rowcount = 0  
+    mock_conn.cursor.return_value = mock_cursor
+    mock_db.return_value = mock_conn
+
+    response = client.put("/api/booking_status/INVALID", json={
+        "booking_status_description": "Invalid Status"
+    })
+    assert response.status_code == 404
+    assert not response.json["success"]
+    assert "Booking status not found" in response.json["error"]
+
+#add delete
+
+@patch("api.get_db_connection")
+def test_delete_booking_status_success(mock_db, client):
+    """Test successful deletion of a booking status."""
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_cursor.rowcount = 1 
+    mock_conn.cursor.return_value = mock_cursor
+    mock_db.return_value = mock_conn
+
+    response = client.delete("/api/booking_status/CONFIRMED")
+    assert response.status_code == 200
+    assert response.json["success"]
+    assert "Booking status with code CONFIRMED has been deleted" in response.json["message"]
+
+@patch("api.get_db_connection")
+def test_delete_booking_status_not_found(mock_db, client):
+    """Test deleting a non-existent booking status."""
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_cursor.rowcount = 0  
+    mock_conn.cursor.return_value = mock_cursor
+    mock_db.return_value = mock_conn
+
+    response = client.delete("/api/booking_status/INVALID")
+    assert response.status_code == 404
+    assert not response.json["success"]
+    assert "Booking status not found" in response.json["error"]
+
+if __name__ == "__main__":
+    pytest.main()
