@@ -8,7 +8,7 @@ from functools import wraps
 from conn import DB_CONFIG
 
 # JWT Secret Key (should be an environment variable in production)
-JWT_SECRET = "your_jwt_secret_key"
+JWT_SECRET = "paeeel"
 
 app = Flask(__name__)
 
@@ -161,6 +161,61 @@ def create_customer():
             cursor.close()
         if conn:
             conn.close()
+            
+@app.route("/api/customer/<int:customer_id>", methods=["PUT"])
+@token_required
+@requires_role("admin")
+def update_customer(customer_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({"success": False, "error": "No data provided"}), HTTPStatus.BAD_REQUEST
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Check if the customer exists
+        cursor.execute("SELECT * FROM customer WHERE customer_id = %s", (customer_id,))
+        if not cursor.fetchone():
+            return jsonify({"success": False, "error": "Customer not found"}), HTTPStatus.NOT_FOUND
+
+        # Update the customer
+        update_fields = []
+        values = []
+
+        if "customer_name" in data:
+            update_fields.append("customer_name = %s")
+            values.append(data["customer_name"])
+        if "email_address" in data:
+            update_fields.append("email_address = %s")
+            values.append(data["email_address"])
+        if "phone_number" in data:
+            update_fields.append("phone_number = %s")
+            values.append(data["phone_number"])
+        if "address" in data:
+            update_fields.append("address = %s")
+            values.append(data["address"])
+
+        if not update_fields:
+            return jsonify({"success": False, "error": "No valid fields provided to update"}), HTTPStatus.BAD_REQUEST
+
+        values.append(customer_id)
+        update_query = f"UPDATE customer SET {', '.join(update_fields)} WHERE customer_id = %s"
+        cursor.execute(update_query, values)
+        conn.commit()
+
+        return jsonify({"success": True, "message": f"Customer with ID {customer_id} updated successfully"}), HTTPStatus.OK
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()            
+
 
 @app.route("/api/customer/<int:customer_id>", methods=["DELETE"])
 @token_required
